@@ -1,0 +1,48 @@
+rm(list=ls())
+
+install.packages("seqinr")
+library(seqinr)
+install.packages("ape")
+library(ape)
+AB003468 <- read.GenBank("AB003468", as.character = "TRUE")
+write.dna(AB003468, file ="AB003468.fasta", format = "fasta", append = FALSE, nbcol = 6, colsep = " ", colw = 10)
+length('AB003468.fasta')
+CloningVector <- AB003468[[1]]
+count<-count(CloningVector,2)
+count
+gc<-GC(CloningVector)
+GCwindow <- seq(1, length(CloningVector)-200, by = 200)
+GCwindow
+n<-length(GCwindow)
+Chunks <- numeric(n)
+for (i in n){
+  Chunks<-CloningVector[GCwindow[i]:(GCwindow[i]+199)]
+  chunkgc<-GC(Chunks)
+  print (chunkgc)
+  Chunks[i]<-chunkgc
+  
+}
+
+plot(GCwindow,Chunks,type="b",xlab="Nucleotide start position",ylab="GC content")
+
+
+#custom function to calculate GC Content 
+slidingwindowGCplot <- function(windowsize,inputseq){
+  GCwindow <- seq(1, length(inputseq)-windowsize, by = windowsize)
+  #find the length of GCwindow
+  n <- length(GCwindow)
+  #Make a vector of same length but empty to refill
+  Chunks <- numeric(n)
+  
+
+for (i in 1:n){
+  chunk <- inputseq[GCwindow[i]:(GCwindow[i]+windowsize-1)]
+chunkGC <- GC(chunk)   
+print(chunkGC)   
+Chunks[i] <- chunkGC  
+}
+  plot(GCwindow,Chunks,type="b",xlab="Nucleotide start position",ylab="GC content",main= "GC PLOT")
+}
+
+slidingwindowGCplot(200,CloningVector)
+
